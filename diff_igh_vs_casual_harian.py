@@ -42,15 +42,31 @@ total_casual_in_igh = 0
 # Initialize total_payment_qty
 total_casual_in_casual_harian = 0
 
+# Initialize total_payment_qty
+total_member_in_igh = 0
+
+# Initialize total_payment_qty
+total_member_in_casual_harian = 0
+
 # List of payment qty fields
 total_casual_in_igh_field = ["casualIn"]
 
 # list of total out calculated qty
 total_casual_in_casual_harian_fields = ["casualIn"]
 
+# List of payment qty fields
+total_member_in_igh_field = ["memberIn"]
+
+# list of total out calculated qty
+total_member_in_casual_harian_fields = ["memberIn"]
+
 # Initialize dictionaries to store discrepancies
 discrepancies_casual_in_igh = {}
 discrepancies_casual_in_casual_harian = {}
+
+# Initialize dictionaries to store discrepancies
+discrepancies_member_in_igh = {}
+discrepancies_member_in_casual_harian = {}
 
 # Calculate total payment quantity
 for item in response_igh:
@@ -74,6 +90,28 @@ for item in response_casual_harian:
 
         discrepancies_casual_in_casual_harian[group_by] += item.get(field, 0)
 
+# Calculate total payment quantity
+for item in response_igh:
+    group_by = item.get("groupBy")
+    for field in total_member_in_igh_field:
+        total_member_in_igh += item.get(field, 0)
+
+        if group_by not in discrepancies_member_in_igh:
+            discrepancies_member_in_igh[group_by] = 0
+
+        discrepancies_member_in_igh[group_by] += item.get(field, 0)
+
+# Calculate total out calculated
+for item in response_casual_harian:
+    group_by = item.get("groupBy")
+    for field in total_member_in_casual_harian_fields:
+        total_member_in_casual_harian += item.get(field, 0)
+
+        if group_by not in discrepancies_member_in_casual_harian:
+            discrepancies_member_in_casual_harian[group_by] = 0
+
+        discrepancies_member_in_casual_harian[group_by] += item.get(field, 0)
+
 # if total_casual_in_igh== total_casual_in_casual_harian:
 if total_casual_in_igh == total_casual_in_casual_harian:
     print(
@@ -89,4 +127,21 @@ for group_by, qty in discrepancies_casual_in_igh.items():
     if discrepancies_casual_in_casual_harian.get(group_by, 0) != qty:
         print(
             f"Group '{group_by}': CasualIn IGH ({qty}) does not match CasualIn Casual Harian ({discrepancies_casual_in_casual_harian.get(group_by, 0)})"
+        )
+
+# if total_casual_in_igh== total_casual_in_casual_harian:
+if total_member_in_igh == total_member_in_casual_harian:
+    print(
+        f"Total member In IGH ({total_member_in_igh}) matches total member In Casual Harian ({total_member_in_casual_harian})"
+    )
+else:
+    print(
+        f"Total member In IGH ({total_member_in_igh}) does not match total member In Casual Harian ({total_member_in_casual_harian})"
+    )
+
+# Print discrepancies
+for group_by, qty in discrepancies_member_in_igh.items():
+    if discrepancies_member_in_casual_harian.get(group_by, 0) != qty:
+        print(
+            f"Group '{group_by}': memberIn IGH ({qty}) does not match memberIn Casual Harian ({discrepancies_member_in_casual_harian.get(group_by, 0)})"
         )
